@@ -287,23 +287,23 @@
         try {
             const response = await fetch(WEBHOOK_URL, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
+                // تم إزالة الـ headers تماماً لمنع المتصفح من إرسال طلب OPTIONS
                 body: JSON.stringify(payload)
             });
             
             if (!response.ok) throw new Error("Network response was not ok");
             
-            const data = await response.json();
+            // قراءة الرد كنص أولاً لتجنب أخطاء التحويل إذا كان الرد فارغاً
+            const text = await response.text();
+            const data = text ? JSON.parse(text) : {};
+            
             if (loaderId) document.getElementById(loaderId).style.display = 'none';
             return data;
             
         } catch (error) {
             console.error("Webhook Error:", error);
             if (loaderId) document.getElementById(loaderId).style.display = 'none';
-            alert("حدث خطأ أثناء الاتصال بالخادم. تأكد من إعدادات n8n Webhook (CORS).");
+            alert("حدث خطأ أثناء الاتصال بالخادم.");
             return null;
         }
     }
