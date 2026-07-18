@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة الاشتراكات | n8n Data Table</title>
+    <title>إدارة الاشتراكات | n8n Webhook</title>
     <style>
         :root {
             --primary: #007bff;
@@ -22,7 +22,7 @@
             background-color: var(--bg-color); 
         }
         
-        /* التخطيط الأساسي (Layout) */
+        /* التخطيط الأساسي */
         .sidebar { 
             width: 250px; 
             background-color: var(--sidebar-bg); 
@@ -56,7 +56,7 @@
             overflow-y: auto; 
         }
         
-        /* الصفحات (Pages) */
+        /* الصفحات */
         .page { 
             display: none; 
             background: #fff; 
@@ -74,7 +74,7 @@
             padding-bottom: 10px; 
         }
         
-        /* الجداول (Tables) */
+        /* الجداول (مع تمرير أفقي للموبايل) */
         .table-responsive {
             width: 100%;
             overflow-x: auto;
@@ -94,7 +94,7 @@
         th { background-color: #f1f3f5; }
         tr:hover { background-color: #f8f9fa; }
         
-        /* النماذج والأزرار (Forms & Buttons) */
+        /* النماذج والأزرار */
         .form-group { margin-bottom: 15px; }
         .form-row { display: flex; gap: 15px; }
         .form-row .form-group { flex: 1; }
@@ -125,7 +125,7 @@
         .btn-secondary { background-color: var(--secondary); }
         .action-btn { padding: 5px 10px; font-size: 12px; margin-left: 5px; }
 
-        /* تفاصيل المشترك (Details View) */
+        /* تفاصيل المشترك */
         .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .detail-item { background: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid var(--primary); }
         .detail-item span { display: block; font-size: 12px; color: #666; margin-bottom: 5px; }
@@ -134,41 +134,22 @@
         .search-bar { display: flex; gap: 10px; background: #f1f3f5; padding: 15px; border-radius: 5px; margin-bottom: 20px; align-items: flex-end; }
         .loader { display: none; text-align: center; padding: 20px; font-weight: bold; color: var(--primary); }
 
-        /* ================= شاشات الموبايل (Mobile Responsiveness) ================= */
+        /* الشاشات المتجاوبة (Mobile) */
         @media (max-width: 768px) {
             body { flex-direction: column; }
-            
-            /* تحويل القائمة الجانبية إلى علوية */
             .sidebar { 
-                width: 100%; 
-                height: auto; 
-                flex-direction: row; 
-                flex-wrap: wrap; 
-                justify-content: space-between;
+                width: 100%; height: auto; flex-direction: row; flex-wrap: wrap; justify-content: space-between;
             }
-            .sidebar h2 { 
-                width: 100%; 
-                padding: 15px 0; 
-                font-size: 18px; 
-                border-bottom: none; 
-            }
+            .sidebar h2 { width: 100%; padding: 15px 0; font-size: 18px; border-bottom: none; }
             .sidebar a { 
-                flex: 1; 
-                text-align: center; 
-                padding: 12px 5px; 
-                font-size: 12px; 
-                border-bottom: none; 
-                border-top: 1px solid #4f5962; 
-                border-left: 1px solid #4f5962;
+                flex: 1; text-align: center; padding: 12px 5px; font-size: 12px; 
+                border-bottom: none; border-top: 1px solid #4f5962; border-left: 1px solid #4f5962;
             }
             .sidebar a:last-child { border-left: none; }
-            
             .main-content { padding: 15px; }
             .page { padding: 15px; }
             .page-header { flex-direction: column; align-items: flex-start; gap: 10px; }
             .page-header button { width: 100%; }
-            
-            /* النماذج والتفاصيل */
             .form-row { flex-direction: column; gap: 0; }
             .search-bar { flex-direction: column; align-items: stretch; gap: 10px; }
             .search-bar .form-group { margin-bottom: 0; }
@@ -179,7 +160,7 @@
 </head>
 <body>
 
-    <!-- القائمة الجانبية / العلوية -->
+    <!-- القائمة الجانبية -->
     <div class="sidebar">
         <h2>نظام إدارة الاشتراكات</h2>
         <a onclick="navigateTo('page-active')" class="nav-link active" id="nav-page-active">النشطة</a>
@@ -190,7 +171,7 @@
     <!-- المحتوى الرئيسي -->
     <div class="main-content">
         
-        <!-- صفحة: الاشتراكات النشطة -->
+        <!-- صفحة: النشطة -->
         <div id="page-active" class="page active">
             <div class="page-header">
                 <h2>الاشتراكات النشطة</h2>
@@ -208,12 +189,12 @@
                             <th>إجراءات</th>
                         </tr>
                     </thead>
-                    <tbody><!-- Data injected here --></tbody>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- صفحة: الاشتراكات المنتهية -->
+        <!-- صفحة: المنتهية -->
         <div id="page-expired" class="page">
             <div class="page-header">
                 <h2>الاشتراكات المنتهية</h2>
@@ -241,12 +222,12 @@
                             <th>إجراءات</th>
                         </tr>
                     </thead>
-                    <tbody><!-- Data injected here --></tbody>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- صفحة: إضافة مشترك جديد / تجديد -->
+        <!-- صفحة: إضافة/تجديد -->
         <div id="page-add" class="page">
             <div class="page-header">
                 <h2 id="add-page-title">إضافة مشترك جديد</h2>
@@ -275,37 +256,56 @@
                     <label>ملاحظات</label>
                     <textarea id="f_Notes" rows="3"></textarea>
                 </div>
-                <button type="submit" class="btn-success" style="width: 100%; padding: 12px; font-size: 16px;">حفظ السجل</button>
+                <button type="submit" class="btn-success" id="submitBtn" style="width: 100%; padding: 12px; font-size: 16px;">حفظ السجل</button>
             </form>
         </div>
 
-        <!-- صفحة: عرض تفاصيل مشترك -->
+        <!-- صفحة: تفاصيل المشترك -->
         <div id="page-details" class="page">
             <div class="page-header">
                 <h2>بيانات المشترك</h2>
                 <button class="btn-secondary" onclick="navigateTo('page-active')">عودة للقائمة</button>
             </div>
-            <div class="details-grid" id="details-container">
-                <!-- Data injected here -->
-            </div>
+            <div class="details-grid" id="details-container"></div>
         </div>
 
     </div>
 
 <script>
-    // ================= الإعدادات والـ API =================
-    const N8N_URL = "https://n8n.101488.xyz/api/v1/data-tables/ZScuTbs4dmaz7KpJ/rows";
-    const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjOTE3Mzg4My0zYjQwLTRlNzUtOTYwMy1mMWM4NTk0Mzk1YTIiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwianRpIjoiZTNiOTFkZDUtZjc3NS00YTA2LThkNGEtNGQ3YzVhODQzMzdjIiwiaWF0IjoxNzg0MzQzMTY2fQ.lLoXmr7q9PC-VrXev4Nf4O8ioE1t3xraxxjS1E2DZHA";
-    
-    // تم إضافة Accept هنا كما طلبنا في الخطوة السابقة
-    const HEADERS = {
-        "X-N8N-API-KEY": API_KEY,
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-    };
+    // ================= الرابط الجديد (Webhook) =================
+    // تم حذف API Key لمزيد من الأمان، وسيتم إرسال جميع الطلبات كـ POST للويب هوك
+    const WEBHOOK_URL = "https://n8n.101488.xyz/webhook/myevo";
 
     function getTodayString() {
         return new Date().toISOString().split('T')[0];
+    }
+
+    // ================= دالة الاتصال بالويب هوك (الشاملة) =================
+    async function sendToWebhook(payload, loaderId) {
+        if (loaderId) document.getElementById(loaderId).style.display = 'block';
+        
+        try {
+            const response = await fetch(WEBHOOK_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            if (!response.ok) throw new Error("Network response was not ok");
+            
+            const data = await response.json();
+            if (loaderId) document.getElementById(loaderId).style.display = 'none';
+            return data;
+            
+        } catch (error) {
+            console.error("Webhook Error:", error);
+            if (loaderId) document.getElementById(loaderId).style.display = 'none';
+            alert("حدث خطأ أثناء الاتصال بالخادم. تأكد من إعدادات n8n Webhook (CORS).");
+            return null;
+        }
     }
 
     // ================= نظام التنقل =================
@@ -324,38 +324,18 @@
         }
     }
 
-    // ================= دوال جلب البيانات =================
-    async function fetchData(filterObj, loaderId) {
-        document.getElementById(loaderId).style.display = 'block';
-        try {
-            const url = new URL(N8N_URL);
-            url.searchParams.append('limit', '250');
-            if (filterObj) {
-                url.searchParams.append('filter', JSON.stringify(filterObj));
-            }
-            
-            const response = await fetch(url, { headers: HEADERS });
-            if (!response.ok) throw new Error("Network response was not ok");
-            
-            const data = await response.json();
-            document.getElementById(loaderId).style.display = 'none';
-            return data.rows || [];
-        } catch (error) {
-            console.error("Fetch Error:", error);
-            document.getElementById(loaderId).style.display = 'none';
-            alert("حدث خطأ أثناء جلب البيانات.");
-            return [];
-        }
-    }
-
+    // ================= جلب الاشتراكات النشطة =================
     async function loadActiveSubscriptions() {
-        const today = getTodayString();
-        const filter = {
-            "type": "and",
-            "filters": [ { "columnName": "End_date", "condition": "gte", "value": today } ]
+        // نرسل العملية كـ "getActive"
+        const payload = { 
+            action: "getActive", 
+            today: getTodayString() 
         };
         
-        const rows = await fetchData(filter, 'loader-active');
+        const data = await sendToWebhook(payload, 'loader-active');
+        // n8n قد يُرجع مصفوفة مباشرة أو كائن يحتوي على مصفوفة rows
+        const rows = Array.isArray(data) ? data : (data?.rows || []);
+        
         const tbody = document.querySelector('#table-active tbody');
         tbody.innerHTML = '';
         
@@ -374,19 +354,19 @@
         });
     }
 
+    // ================= جلب الاشتراكات المنتهية =================
     async function loadExpiredSubscriptions() {
-        const today = getTodayString();
-        const dateFrom = document.getElementById('search-date-from').value;
-        const dateTo = document.getElementById('search-date-to').value;
-
-        let filtersArray = [ { "columnName": "End_date", "condition": "lt", "value": today } ];
-
-        if (dateFrom) filtersArray.push({ "columnName": "End_date", "condition": "gte", "value": dateFrom });
-        if (dateTo) filtersArray.push({ "columnName": "End_date", "condition": "lte", "value": dateTo });
-
-        const filterObj = { "type": "and", "filters": filtersArray };
+        // نرسل العملية "getExpired" مع الفلاتر الزمنية الديناميكية
+        const payload = {
+            action: "getExpired",
+            today: getTodayString(),
+            dateFrom: document.getElementById('search-date-from').value || null,
+            dateTo: document.getElementById('search-date-to').value || null
+        };
         
-        const rows = await fetchData(filterObj, 'loader-expired');
+        const data = await sendToWebhook(payload, 'loader-expired');
+        const rows = Array.isArray(data) ? data : (data?.rows || []);
+        
         const tbody = document.querySelector('#table-expired tbody');
         tbody.innerHTML = '';
         
@@ -405,7 +385,7 @@
         });
     }
 
-    // ================= دوال التفاعل =================
+    // ================= حساب التواريخ والتجديد =================
     function calculateDates() {
         const startStr = document.getElementById('f_Start_date').value;
         const monthes = parseInt(document.getElementById('f_Monthes').value) || 0;
@@ -433,9 +413,10 @@
         }
     }
 
+    // ================= إرسال بيانات النموذج (حفظ) =================
     async function handleFormSubmit(e) {
         e.preventDefault();
-        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const submitBtn = document.getElementById('submitBtn');
         submitBtn.disabled = true;
         submitBtn.innerText = "جاري الحفظ...";
 
@@ -451,33 +432,25 @@
             Notes: document.getElementById('f_Notes').value
         };
 
-        try {
-            const response = await fetch(N8N_URL, {
-                method: 'POST',
-                headers: HEADERS,
-                body: JSON.stringify({
-                    data: [newRow],
-                    returnType: "count"
-                })
-            });
+        const payload = {
+            action: "add",
+            data: newRow
+        };
 
-            if (response.ok) {
-                alert('تم حفظ السجل بنجاح!');
-                document.getElementById('subscriberForm').reset();
-                document.getElementById('add-page-title').innerText = 'إضافة مشترك جديد';
-                navigateTo('page-active');
-            } else {
-                throw new Error("فشل الحفظ");
-            }
-        } catch (error) {
-            console.error(error);
-            alert("حدث خطأ أثناء حفظ البيانات.");
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.innerText = "حفظ السجل";
+        const result = await sendToWebhook(payload, null);
+
+        submitBtn.disabled = false;
+        submitBtn.innerText = "حفظ السجل";
+
+        if (result) {
+            alert('تم حفظ السجل بنجاح!');
+            document.getElementById('subscriberForm').reset();
+            document.getElementById('add-page-title').innerText = 'إضافة مشترك جديد';
+            navigateTo('page-active');
         }
     }
 
+    // ================= عرض تفاصيل مشترك =================
     function viewDetails(rowObj) {
         navigateTo('page-details');
         const container = document.getElementById('details-container');
@@ -494,6 +467,7 @@
         `;
     }
 
+    // التحميل المبدئي عند فتح الصفحة
     window.onload = () => {
         loadActiveSubscriptions();
     };
