@@ -74,7 +74,7 @@
             padding-bottom: 10px; 
         }
         
-        /* الجداول (مع تمرير أفقي للموبايل) */
+        /* الجداول */
         .table-responsive {
             width: 100%;
             overflow-x: auto;
@@ -134,7 +134,7 @@
         .search-bar { display: flex; gap: 10px; background: #f1f3f5; padding: 15px; border-radius: 5px; margin-bottom: 20px; align-items: flex-end; }
         .loader { display: none; text-align: center; padding: 20px; font-weight: bold; color: var(--primary); }
 
-        /* الشاشات المتجاوبة (Mobile) */
+        /* الشاشات المتجاوبة */
         @media (max-width: 768px) {
             body { flex-direction: column; }
             .sidebar { 
@@ -272,30 +272,40 @@
     </div>
 
 <script>
-    // ================= الرابط الجديد (Webhook) =================
-    // تم حذف API Key لمزيد من الأمان، وسيتم إرسال جميع الطلبات كـ POST للويب هوك
+    // ================= الإعدادات =================
     const WEBHOOK_URL = "https://n8n.101488.xyz/webhook/myevo";
 
     function getTodayString() {
         return new Date().toISOString().split('T')[0];
     }
 
-    // ================= دالة الاتصال بالويب هوك (الشاملة) =================
+    // دالة جديدة لتنسيق التاريخ بدون الوقت
+    function formatDateOnly(dateString) {
+        if (!dateString) return '-';
+        // فصل النص من عند حرف T أو مسافة لضمان إرجاع YYYY-MM-DD فقط
+        return dateString.toString().split('T')[0].split(' ')[0];
+    }
+
+    // ================= الاتصال بالويب هوك =================
     async function sendToWebhook(payload, loaderId) {
         if (loaderId) document.getElementById(loaderId).style.display = 'block';
         
         try {
             const response = await fetch(WEBHOOK_URL, {
                 method: 'POST',
-                // تم إزالة الـ headers تماماً لمنع المتصفح من إرسال طلب OPTIONS
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
                 body: JSON.stringify(payload)
             });
             
-            if (!response.ok) throw new Error("Network response was not ok");
+            if (!response.ok) throw new Error("Server error: " + response.status);
             
-            // قراءة الرد كنص أولاً لتجنب أخطاء التحويل إذا كان الرد فارغاً
             const text = await response.text();
             const data = text ? JSON.parse(text) : {};
+            
+            console.log("البيانات المستلمة من n8n:", data);
             
             if (loaderId) document.getElementById(loaderId).style.display = 'none';
             return data;
@@ -303,7 +313,7 @@
         } catch (error) {
             console.error("Webhook Error:", error);
             if (loaderId) document.getElementById(loaderId).style.display = 'none';
-            alert("حدث خطأ أثناء الاتصال بالخادم.");
+            alert("حدث خطأ في الخادم أو في معالجة البيانات.");
             return null;
         }
     }
@@ -326,14 +336,12 @@
 
     // ================= جلب الاشتراكات النشطة =================
     async function loadActiveSubscriptions() {
-        // نرسل العملية كـ "getActive"
         const payload = { 
             action: "getActive", 
             today: getTodayString() 
         };
         
         const data = await sendToWebhook(payload, 'loader-active');
-        // n8n قد يُرجع مصفوفة مباشرة أو كائن يحتوي على مصفوفة rows
         const rows = Array.isArray(data) ? data : (data?.rows || []);
         
         const tbody = document.querySelector('#table-active tbody');
@@ -344,8 +352,9 @@
             tr.innerHTML = `
                 <td>${row.Name || '-'}</td>
                 <td>${row.Mobile || '-'}</td>
-                <td>${row.Start_Date || '-'}</td>
-                <td><span style="color: green; font-weight:bold;">${row.End_Date || '-'}</span></td>
+                <!-- تطبيق الدالة لتنسيق التاريخ هنا -->
+                <td>${formatDateOnly(row.Start_date)}</td>
+                <td><span style="color: green; font-weight:bold;">${formatDateOnly(row.End_date)}</span></td>
                 <td>
                     <button class="btn-secondary action-btn" onclick='viewDetails(${JSON.stringify(row).replace(/'/g, "&apos;")})'>عرض</button>
                 </td>
@@ -356,7 +365,6 @@
 
     // ================= جلب الاشتراكات المنتهية =================
     async function loadExpiredSubscriptions() {
-        // نرسل العملية "getExpired" مع الفلاتر الزمنية الديناميكية
         const payload = {
             action: "getExpired",
             today: getTodayString(),
@@ -375,10 +383,11 @@
             tr.innerHTML = `
                 <td>${row.Name || '-'}</td>
                 <td>${row.Mobile || '-'}</td>
-                <td>${row.Start_Date || '-'}</td>
-                <td><span style="color: red; font-weight:bold;">${row.End_Date || '-'}</span></td>
+                <!-- تطبيق الدالة لتنسيق التاريخ هنا -->
+                <td>${formatDateOnly(row.Start_date)}</td>
+                <td><span style="color: red; font-weight:bold;">${formatDateOnly(row.End_date)}</span></td>
                 <td>
-                    <button class="btn-primary action-btn" onclick="initiateRenewal('${row.Name}', '${row.Mobile}', '${row.End_date}')">تجديد</button>
+                    <button class="btn-primary action-btn" onclick="initiateRenewal('${row.Name}', '${row.Mobile}', '${formatDateOnly(row.End_date)}')">تجديد</button>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -408,7 +417,7 @@
         document.getElementById('f_Name').value = name;
         document.getElementById('f_Mobile').value = mobile;
         
-        if (oldEndDate) {
+        if (oldEndDate && oldEndDate !== '-') {
             document.getElementById('f_Start_date').value = oldEndDate;
         }
     }
@@ -425,8 +434,8 @@
             Mobile: document.getElementById('f_Mobile').value,
             Amount: parseFloat(document.getElementById('f_Amount').value),
             Monthes: parseInt(document.getElementById('f_Monthes').value),
-            Start_Date: document.getElementById('f_Start_date').value,
-            End_Date: document.getElementById('f_End_date').value,
+            Start_date: document.getElementById('f_Start_date').value,
+            End_date: document.getElementById('f_End_date').value,
             Notified: document.getElementById('f_Notified').checked ? "Yes" : "No",
             Notification_date: document.getElementById('f_Notification_date').value || null,
             Notes: document.getElementById('f_Notes').value
@@ -459,10 +468,12 @@
             <div class="detail-item"><span>رقم الموبايل:</span><strong>${rowObj.Mobile || '-'}</strong></div>
             <div class="detail-item"><span>المبلغ:</span><strong>${rowObj.Amount || '0'}</strong></div>
             <div class="detail-item"><span>عدد الشهور:</span><strong>${rowObj.Monthes || '0'}</strong></div>
-            <div class="detail-item"><span>تاريخ البداية:</span><strong>${rowObj.Start_Date || '-'}</strong></div>
-            <div class="detail-item"><span>تاريخ الانتهاء:</span><strong>${rowObj.End_Date || '-'}</strong></div>
+            <!-- تطبيق الدالة لتنسيق التاريخ هنا -->
+            <div class="detail-item"><span>تاريخ البداية:</span><strong>${formatDateOnly(rowObj.Start_date)}</strong></div>
+            <div class="detail-item"><span>تاريخ الانتهاء:</span><strong>${formatDateOnly(rowObj.End_date)}</strong></div>
+            
             <div class="detail-item"><span>تم الإشعار:</span><strong>${rowObj.Notified === true || rowObj.Notified === 'Yes' ? 'نعم' : 'لا'}</strong></div>
-            <div class="detail-item"><span>تاريخ الإشعار:</span><strong>${rowObj.Notification_date || '-'}</strong></div>
+            <div class="detail-item"><span>تاريخ الإشعار:</span><strong>${formatDateOnly(rowObj.Notification_date)}</strong></div>
             <div class="detail-item" style="grid-column: 1 / -1;"><span>ملاحظات:</span><strong>${rowObj.Notes || 'لا توجد ملاحظات'}</strong></div>
         `;
     }
