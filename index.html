@@ -334,7 +334,7 @@
         }
     }
 
-    // ================= جلب الاشتراكات النشطة =================
+ // ================= جلب الاشتراكات النشطة =================
     async function loadActiveSubscriptions() {
         const payload = { 
             action: "getActive", 
@@ -342,8 +342,18 @@
         };
         
         const data = await sendToWebhook(payload, 'loader-active');
-        const rows = Array.isArray(data) ? data : (data?.rows || []);
+        let rows = Array.isArray(data) ? data : (data?.rows || []);
         
+        // --- فلترة السجلات النشطة فقط (تاريخ الانتهاء >= اليوم) ---
+        const todayDate = new Date(getTodayString());
+        
+        rows = rows.filter(row => {
+            if (!row.End_date) return false;
+            const endDate = new Date(row.End_date.split('T')[0]); // أخذ التاريخ فقط
+            return endDate >= todayDate;
+        });
+        // --------------------------------------------------------
+
         const tbody = document.querySelector('#table-active tbody');
         tbody.innerHTML = '';
         
@@ -352,7 +362,6 @@
             tr.innerHTML = `
                 <td>${row.Name || '-'}</td>
                 <td>${row.Mobile || '-'}</td>
-                <!-- تطبيق الدالة لتنسيق التاريخ هنا -->
                 <td>${formatDateOnly(row.Start_date)}</td>
                 <td><span style="color: green; font-weight:bold;">${formatDateOnly(row.End_date)}</span></td>
                 <td>
@@ -373,8 +382,29 @@
         };
         
         const data = await sendToWebhook(payload, 'loader-expired');
-        const rows = Array.isArray(data) ? data : (data?.rows || []);
+        let rows = Array.isArray(data) ? data : (data?.rows || []);
         
+        // --- فلترة السجلات المنتهية فقط مع البحث ---
+        const todayDate = new Date(getTodayString());
+        const searchFrom = payload.dateFrom ? new Date(payload.dateFrom) : null;
+        const searchTo = payload.dateTo ? new Date(payload.dateTo) : null;
+
+        rows = rows.filter(row => {
+            if (!row.End_date) return false;
+            
+            const endDate = new Date(row.End_date.split('T')[0]); 
+            
+            // 1. الشرط الأساسي: أن يكون تاريخ الانتهاء قبل اليوم
+            let isExpired = endDate < todayDate;
+
+            // 2. تطبيق البحث بين تاريخين (إذا أدخل المستخدم تواريخ)
+            if (searchFrom && endDate < searchFrom) isExpired = false;
+            if (searchTo && endDate > searchTo) isExpired = false;
+
+            return isExpired;
+        });
+        // --------------------------------------------------------
+
         const tbody = document.querySelector('#table-expired tbody');
         tbody.innerHTML = '';
         
@@ -383,7 +413,6 @@
             tr.innerHTML = `
                 <td>${row.Name || '-'}</td>
                 <td>${row.Mobile || '-'}</td>
-                <!-- تطبيق الدالة لتنسيق التاريخ هنا -->
                 <td>${formatDateOnly(row.Start_date)}</td>
                 <td><span style="color: red; font-weight:bold;">${formatDateOnly(row.End_date)}</span></td>
                 <td>
@@ -393,7 +422,6 @@
             tbody.appendChild(tr);
         });
     }
-
     // ================= حساب التواريخ والتجديد =================
     function calculateDates() {
         const startStr = document.getElementById('f_Start_date').value;
