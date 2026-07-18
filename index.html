@@ -344,8 +344,8 @@
             tr.innerHTML = `
                 <td>${row.Name || '-'}</td>
                 <td>${row.Mobile || '-'}</td>
-                <td>${row.Start_date || '-'}</td>
-                <td><span style="color: green; font-weight:bold;">${row.End_date || '-'}</span></td>
+                <td>${row.Start_Date || '-'}</td>
+                <td><span style="color: green; font-weight:bold;">${row.End_Date || '-'}</span></td>
                 <td>
                     <button class="btn-secondary action-btn" onclick='viewDetails(${JSON.stringify(row).replace(/'/g, "&apos;")})'>عرض</button>
                 </td>
@@ -375,8 +375,8 @@
             tr.innerHTML = `
                 <td>${row.Name || '-'}</td>
                 <td>${row.Mobile || '-'}</td>
-                <td>${row.Start_date || '-'}</td>
-                <td><span style="color: red; font-weight:bold;">${row.End_date || '-'}</span></td>
+                <td>${row.Start_Date || '-'}</td>
+                <td><span style="color: red; font-weight:bold;">${row.End_Date || '-'}</span></td>
                 <td>
                     <button class="btn-primary action-btn" onclick="initiateRenewal('${row.Name}', '${row.Mobile}', '${row.End_date}')">تجديد</button>
                 </td>
@@ -425,8 +425,8 @@
             Mobile: document.getElementById('f_Mobile').value,
             Amount: parseFloat(document.getElementById('f_Amount').value),
             Monthes: parseInt(document.getElementById('f_Monthes').value),
-            Start_date: document.getElementById('f_Start_date').value,
-            End_date: document.getElementById('f_End_date').value,
+            Start_Date: document.getElementById('f_Start_date').value,
+            End_Date: document.getElementById('f_End_date').value,
             Notified: document.getElementById('f_Notified').checked ? "Yes" : "No",
             Notification_date: document.getElementById('f_Notification_date').value || null,
             Notes: document.getElementById('f_Notes').value
@@ -459,8 +459,8 @@
             <div class="detail-item"><span>رقم الموبايل:</span><strong>${rowObj.Mobile || '-'}</strong></div>
             <div class="detail-item"><span>المبلغ:</span><strong>${rowObj.Amount || '0'}</strong></div>
             <div class="detail-item"><span>عدد الشهور:</span><strong>${rowObj.Monthes || '0'}</strong></div>
-            <div class="detail-item"><span>تاريخ البداية:</span><strong>${rowObj.Start_date || '-'}</strong></div>
-            <div class="detail-item"><span>تاريخ الانتهاء:</span><strong>${rowObj.End_date || '-'}</strong></div>
+            <div class="detail-item"><span>تاريخ البداية:</span><strong>${rowObj.Start_Date || '-'}</strong></div>
+            <div class="detail-item"><span>تاريخ الانتهاء:</span><strong>${rowObj.End_Date || '-'}</strong></div>
             <div class="detail-item"><span>تم الإشعار:</span><strong>${rowObj.Notified === true || rowObj.Notified === 'Yes' ? 'نعم' : 'لا'}</strong></div>
             <div class="detail-item"><span>تاريخ الإشعار:</span><strong>${rowObj.Notification_date || '-'}</strong></div>
             <div class="detail-item" style="grid-column: 1 / -1;"><span>ملاحظات:</span><strong>${rowObj.Notes || 'لا توجد ملاحظات'}</strong></div>
