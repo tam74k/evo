@@ -84,7 +84,7 @@
             width: 100%; 
             border-collapse: collapse; 
             margin-top: 15px; 
-            white-space: nowrap; /* يمنع تكسير النص داخل الجدول */
+            white-space: nowrap; 
         }
         th, td { 
             padding: 12px; 
@@ -297,9 +297,11 @@
     const N8N_URL = "https://n8n.101488.xyz/api/v1/data-tables/ZScuTbs4dmaz7KpJ/rows";
     const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjOTE3Mzg4My0zYjQwLTRlNzUtOTYwMy1mMWM4NTk0Mzk1YTIiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwianRpIjoiZTNiOTFkZDUtZjc3NS00YTA2LThkNGEtNGQ3YzVhODQzMzdjIiwiaWF0IjoxNzg0MzQzMTY2fQ.lLoXmr7q9PC-VrXev4Nf4O8ioE1t3xraxxjS1E2DZHA";
     
+    // تم إضافة Accept هنا كما طلبنا في الخطوة السابقة
     const HEADERS = {
         "X-N8N-API-KEY": API_KEY,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Accept": "application/json"
     };
 
     function getTodayString() {
